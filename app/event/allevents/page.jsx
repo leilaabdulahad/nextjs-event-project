@@ -1,32 +1,44 @@
+
 'use client'
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 function AllEvents() {
-  const [posts, setPosts] = useState([]);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/posts')
-      .then(response => response.json())
-      .then(data => setPosts(data))
+    fetch('http://localhost:3000/api/events')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error fetching events');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data); 
+        setEvents(data);
+      })
       .catch(error => console.error('Error:', error));
   }, []);
 
   return (
     <div>
-      <h1>Posts</h1>
-      {posts.map(post => (
-        <Link href={`/post/${post._id}`} key={post._id}>
-          
-            <h2>{post.title}</h2>
-            <p>{post.location}</p>
-            {post.imageId && (
-              <img src={post.image} alt={post.title} width={500} height={300} />
-            )}
-            <p>{post.date}</p>
-            <p>{post.time}</p>
-            <p>{post.body}</p>
-          
+      <h1>All events</h1>
+      {events.map(event => (
+        <Link href={`/event/allevents/${event._id}`} key={event._id}>
+          <div>
+            <div>
+              <h2>{event.title}</h2>
+              <p>{event.location}</p>
+              {event.imageId && (
+                <img src={event.image} alt={event.title} width={500} height={300} />
+              )}
+              <p>{event.date}</p>
+              <p>{event.price}</p>
+              <p>{event.seats}</p>
+              <p>{event.description}</p>
+            </div>
+          </div>
         </Link>
       ))}
     </div>
