@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-function AllEvents() {
+const AllEvents = () => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/events')
+    fetch('http://localhost:3000/api/events')
       .then(response => {
         if (!response.ok) {
           throw new Error('Error fetching events');
@@ -14,7 +14,6 @@ function AllEvents() {
         return response.json();
       })
       .then(data => {
-        console.log(data); 
         setEvents(data);
       })
       .catch(error => console.error('Error:', error));
@@ -42,6 +41,6 @@ function AllEvents() {
       ))}
     </div>
   );
-}
+};
 
 export default AllEvents;
