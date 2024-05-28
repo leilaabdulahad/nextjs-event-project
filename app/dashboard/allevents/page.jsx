@@ -1,4 +1,3 @@
-
 'use client'
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -7,7 +6,7 @@ function AllEvents() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/events')
+    fetch('http://localhost:3001/api/events')
       .then(response => {
         if (!response.ok) {
           throw new Error('Error fetching events');
@@ -25,8 +24,8 @@ function AllEvents() {
     <div>
       <h1>All events</h1>
       {events.map(event => (
-        <Link href={`/event/allevents/${event._id}`} key={event._id}>
-          <div>
+        <div key={event._id}>
+          <Link href={`/dashboard/allevents/${event._id}`}>
             <div>
               <h2>{event.title}</h2>
               <p>{event.location}</p>
@@ -38,8 +37,8 @@ function AllEvents() {
               <p>{event.seats}</p>
               <p>{event.description}</p>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
       ))}
     </div>
   );
