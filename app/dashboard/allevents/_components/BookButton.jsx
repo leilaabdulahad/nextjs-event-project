@@ -63,8 +63,8 @@ const BookButton = ({ eventId, userId }) => {
       const updatedEventResponse = await fetch(`http://localhost:3000/api/events/${eventId}`);
       const updatedEvent = await updatedEventResponse.json();
 
-      setIsBooked(!isBooked); // Toggle the booking status
-      setSeats(updatedEvent.seats); // Update seats
+      setIsBooked(!isBooked); 
+      setSeats(updatedEvent.seats); 
     } catch (err) {
       setError(err.message);
     } finally {

@@ -7,11 +7,9 @@ import {
   } from "@/components/ui/select"
   
   export const FilterEvents = ({ setFilterDate, setFilterLocation, events }) => {
-    // Create a list of unique locations
-    const locations = ["All", ...new Set(events.map(event => event.location))]
-  
-    // Create a list of unique dates
+    
     const dates = ["All", ...new Set(events.map(event => event.date))]
+    const locations = ["All", ...new Set(events.map(event => event.location))]
   
     return (
       <div className="flex flex-wrap justify-center mb-10 gap-10">
