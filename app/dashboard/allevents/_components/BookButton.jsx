@@ -8,14 +8,16 @@ const BookButton = ({ eventId, userId }) => {
   const [isCancelled, setIsCancelled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [seats, setSeats] = useState(null);
 
   const fetchBookingState = async () => {
     setLoading(true);
     try {
       const response = await fetch(`http://localhost:3000/api/events/${eventId}?userId=${userId}`);
-      const { isBooked, isCancelled } = await response.json();
+      const { isBooked, isCancelled, seats } = await response.json();
       setIsBooked(isBooked);
       setIsCancelled(isCancelled);
+      setSeats(seats); 
     } catch (err) {
       setError(err.message);
     } finally {
@@ -77,7 +79,8 @@ const BookButton = ({ eventId, userId }) => {
   return (
     <div>
       {error && <p>{error}</p>}
-      <Button  disabled={loading || isBooked} onClick={handleBookEvent}>
+      {seats === 0 && <p>No seats available</p>} 
+      <Button  disabled={loading || isBooked || seats === 0} onClick={handleBookEvent}>
         {loading ? 'Booking...' : isBooked ? 'Booked' : 'Book Now'}
       </Button>
       {isBooked && !isCancelled && (
