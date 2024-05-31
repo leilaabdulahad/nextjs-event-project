@@ -1,70 +1,72 @@
+'use client';
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button"
+
 
 const BookButton = ({ eventId, userId }) => {
   const [isBooked, setIsBooked] = useState(false);
+  const [isCancelled, setIsCancelled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [seats, setSeats] = useState(null);
-  const router = useRouter();
 
-  const checkBooking = async () => {
-    if (!userId) {
-      return;
-    }
-
+  const fetchBookingState = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/events/${eventId}?id=${userId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch booking status');
-      }
-      const data = await response.json();
-      setIsBooked(data.isBooked);
-      setSeats(data.seats);
+      const response = await fetch(`http://localhost:3000/api/events/${eventId}?userId=${userId}`);
+      const { isBooked, isCancelled } = await response.json();
+      setIsBooked(isBooked);
+      setIsCancelled(isCancelled);
     } catch (err) {
-      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    checkBooking();
+    fetchBookingState();
   }, [eventId, userId]);
+
+
 
   const handleBookEvent = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      let response;
-      if (isBooked) {
-        response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId, action: 'unbook' }),
-        });
-      } else {
-        response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId, action: 'book' }),
-        });
-      }
-
+      const response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
       if (!response.ok) {
-        throw new Error('Failed to update booking status');
+        throw new Error('Error booking event');
       }
+      setIsBooked(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-      // Fetch the updated event data
-      const updatedEventResponse = await fetch(`http://localhost:3000/api/events/${eventId}`);
-      const updatedEvent = await updatedEventResponse.json();
-
-      setIsBooked(!isBooked); 
-      setSeats(updatedEvent.seats); 
+  const handleCancelBooking = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (!response.ok) {
+        throw new Error('Error cancelling booking');
+      }
+      setIsCancelled(true);
+      setIsBooked(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,11 +76,15 @@ const BookButton = ({ eventId, userId }) => {
 
   return (
     <div>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
-      <Button onClick={handleBookEvent} disabled={loading || (!isBooked && seats <= 0)}>
-        {isBooked ? 'Unbook' : (seats <= 0 ? 'No seats available' : 'Book now')}
+      {error && <p>{error}</p>}
+      <Button  disabled={loading || isBooked} onClick={handleBookEvent}>
+        {loading ? 'Booking...' : isBooked ? 'Booked' : 'Book Now'}
       </Button>
+      {isBooked && !isCancelled && (
+        <Button  disabled={loading} onClick={handleCancelBooking}>
+          {loading ? 'Cancelling...' : 'Cancel Booking'}
+        </Button>
+      )}
     </div>
   );
 };
